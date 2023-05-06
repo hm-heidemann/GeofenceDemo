@@ -1,21 +1,35 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import MapView, { Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib';
 
 export default function App() {
   const [isMonitoring, setIsMonitoring] = useState(false);
-  const [insideGeofence, setInsideGeofence] = useState(false);
+  const [activeGeofences, setActiveGeofences] = useState([]);
   const [location, setLocation] = useState(null);
+  const [initialRegion, setInitialRegion] = useState(null);
   const positionSubscription = useRef(null);
   const mapRef = useRef(null);
 
-  const hochschuleMuenchen = {
-    latitude: 48.154278,
-    longitude: 11.553861,
-    radius: 200,
-  };
+  const geofences = [
+    {
+      name: 'Hochschule München Campus Lothstraße',
+      latitude: 48.154278,
+      longitude: 11.553861,
+      radius: 200,
+    }, {
+      name: 'Hochschule München Campus Karlstraße',
+      latitude: 48.142878,
+      longitude: 11.568263,
+      radius: 80,
+    }, {
+      name: 'Hochschule München Campus Pasing',
+      latitude: 48.141625,
+      longitude: 11.451135,
+      radius: 150,
+    }
+  ];
 
   useEffect(() => {
     (async () => {
@@ -26,6 +40,14 @@ export default function App() {
         console.log('Eine oder mehrere Permissions wurden nicht erteilt.');
         return;
       }
+
+      const initialUserLocation = await Location.getCurrentPositionAsync({});
+      setInitialRegion({
+        latitude: initialUserLocation.coords.latitude,
+        longitude: initialUserLocation.coords.longitude,
+         latitudeDelta: 0.005,
+         longitudeDelta: 0.005,
+      });
     })();
 
     return () => {
@@ -54,12 +76,6 @@ export default function App() {
       (location) => {
         setLocation(location);
         console.log('Current location: ' + location.coords.latitude + ', ' + location.coords.longitude);
-        const currentlyInsideGeofence = isInsideGeofence(location, hochschuleMuenchen);
-        console.log('Inside geofence:', currentlyInsideGeofence);
-
-        if (currentlyInsideGeofence !== insideGeofence) {
-          setInsideGeofence(currentlyInsideGeofence);
-        }
 
         if (mapRef.current) {
           mapRef.current.animateCamera({
@@ -80,32 +96,53 @@ export default function App() {
       positionSubscription.current.remove();
     }
     setIsMonitoring(false);
+    setActiveGeofences([]);
   }
+
+
+  useEffect(() => {
+    if (!location) {
+      return;
+    }
+
+    activeGeofences.forEach((name) => {
+      const geofence = geofences.find((geofence) => geofence.name === name);
+      if (geofence && !isInsideGeofence(location, geofence)) {
+        console.log(`Sie haben die ${geofence.name} Zone verlassen.`);
+        setActiveGeofences((prev) => prev.filter((activeName) => activeName !== geofence.name));
+      }
+    });
+
+    geofences.forEach((geofence) => {
+      if (isInsideGeofence(location, geofence) && !activeGeofences.includes(geofence.name)) {
+        console.log(`Sie befinden sich in der Nähe der ${geofence.name}.`);
+        setActiveGeofences((prev) => [...prev, geofence.name]);
+      }
+    });
+  }, [location, activeGeofences]);
 
   return (
     <View style={{ flex: 1 }}>
       <MapView
         ref={mapRef}
         style={{ flex: 1 }}
-        initialRegion={{
-          latitude: hochschuleMuenchen.latitude,
-          longitude: hochschuleMuenchen.longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        }}
+        initialRegion={initialRegion}
         showsUserLocation={true}
         userLocationAnnotationTitle=""
       >
-        <Circle
-          center={{
-            latitude: hochschuleMuenchen.latitude,
-            longitude: hochschuleMuenchen.longitude,
-          }}
-          radius={hochschuleMuenchen.radius}
-          strokeWidth={1}
-          strokeColor="#3399ff"
-          fillColor="rgba(51, 153, 255, 0.1)"
-        />
+        {geofences.map((geofence, index) => (
+          <Circle
+            key={index}
+            center={{
+              latitude: geofence.latitude,
+              longitude: geofence.longitude,
+            }}
+            radius={geofence.radius}
+            strokeWidth={1}
+            strokeColor="#3399ff"
+            fillColor="rgba(51, 153, 255, 0.1)"
+          />
+        ))}
       </MapView>
       <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20 }}>
         <TouchableOpacity
