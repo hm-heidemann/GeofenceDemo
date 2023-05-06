@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import MapView, { Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib';
+// import * as Notifications from 'expo-notifications';
 
 export default function App() {
   const [isMonitoring, setIsMonitoring] = useState(false);
@@ -12,6 +13,7 @@ export default function App() {
   const positionSubscription = useRef(null);
   const mapRef = useRef(null);
 
+ // Hier Geofences eintragen
   const geofences = [
     {
       name: 'Hochschule München Campus Lothstraße',
@@ -31,10 +33,12 @@ export default function App() {
     }
   ];
 
+  // Abfrage der Tracking Berechtigungen & Setze initale Location
   useEffect(() => {
     (async () => {
       const { status: fgStatus } = await Location.requestForegroundPermissionsAsync();
       const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
+      // const { status } = await Notifications.requestPermissionsAsync();
 
       if (fgStatus !== 'granted' || bgStatus !== 'granted') {
         console.log('Eine oder mehrere Permissions wurden nicht erteilt.');
@@ -57,6 +61,7 @@ export default function App() {
     };
   }, []);
 
+  // Berechne ob man sich in einem Geofence befindet
   function isInsideGeofence(location, geofence) {
     const { latitude, longitude, radius } = geofence;
     const distance = getDistance(
@@ -65,6 +70,29 @@ export default function App() {
     );
     return distance <= radius;
   }
+
+  // Diesen Teil auskommentieren, falls man Notifications versenden möchte
+
+  // async function sendEnterNotification(geofenceName) {
+  //   await Notifications.scheduleNotificationAsync({
+  //     content: {
+  //       title: 'Geofence',
+  //       body: `Sie befinden sich in der Nähe der ${geofence.name}.`,
+  //     },
+  //     trigger: null,
+  //   });
+  // }
+
+  // async function sendExitNotification(geofenceName) {
+  //   await Notifications.scheduleNotificationAsync({
+  //     content: {
+  //       title: 'Geofence',
+  //       body: `Sie verlassen die ${geofence.name}.`,
+  //     },
+  //     trigger: null,
+  //   });
+  // }
+
 
   async function startMonitoring() {
     positionSubscription.current = await Location.watchPositionAsync(
@@ -77,6 +105,7 @@ export default function App() {
         setLocation(location);
         console.log('Current location: ' + location.coords.latitude + ', ' + location.coords.longitude);
 
+        // Zentriere Karte auf aktuelle Position
         if (mapRef.current) {
           mapRef.current.animateCamera({
             center: {
@@ -108,13 +137,15 @@ export default function App() {
     activeGeofences.forEach((name) => {
       const geofence = geofences.find((geofence) => geofence.name === name);
       if (geofence && !isInsideGeofence(location, geofence)) {
-        console.log(`Sie haben die ${geofence.name} Zone verlassen.`);
+        // sendEnterNotification(geofence.name);
+        console.log(`Sie verlassen die ${geofence.name}.`);
         setActiveGeofences((prev) => prev.filter((activeName) => activeName !== geofence.name));
       }
     });
 
     geofences.forEach((geofence) => {
       if (isInsideGeofence(location, geofence) && !activeGeofences.includes(geofence.name)) {
+        // sendExitNotification(geofence.name);
         console.log(`Sie befinden sich in der Nähe der ${geofence.name}.`);
         setActiveGeofences((prev) => [...prev, geofence.name]);
       }
