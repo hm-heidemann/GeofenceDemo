@@ -93,7 +93,7 @@ export default function App() {
               pitch: 0,
               heading: 0,
               altitude: 0,
-              zoom: 15,
+              zoom: 17,
             });
           }
         },
