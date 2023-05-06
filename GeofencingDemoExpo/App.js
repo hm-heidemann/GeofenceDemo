@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import * as Location from 'expo-location';
-import * as Notifications from 'expo-notifications';
 import { getDistance } from 'geolib';
 
 export default function App() {
@@ -17,19 +16,10 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
-      Notifications.setNotificationHandler({
-        handleNotification: async () => ({
-          shouldShowAlert: true,
-          shouldPlaySound: false,
-          shouldSetBadge: false,
-        }),
-      });
-
       const { status: fgStatus } = await Location.requestForegroundPermissionsAsync();
       const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
-      const notifStatus = await Notifications.requestPermissionsAsync();
 
-      if (fgStatus !== 'granted' || bgStatus !== 'granted' || notifStatus.status !== 'granted') {
+      if (fgStatus !== 'granted' || bgStatus !== 'granted') {
         console.log('Eine oder mehrere Permissions wurden nicht erteilt.');
         return;
       }
@@ -65,26 +55,6 @@ export default function App() {
 
         if (currentlyInsideGeofence !== insideGeofence) {
           setInsideGeofence(currentlyInsideGeofence);
-
-          if (currentlyInsideGeofence) {
-            Notifications.scheduleNotificationAsync({
-              content: {
-                title: 'Hochschule München',
-                body: 'Willkommen bei der Hochschule München',
-                sound: 'default',
-              },
-              trigger: null,
-            });
-          } else {
-            Notifications.scheduleNotificationAsync({
-              content: {
-                title: 'Hochschule München',
-                body: 'Auf Wiedersehen!',
-                sound: 'default',
-              },
-              trigger: null,
-            });
-          }
         }
       }
     );
@@ -108,7 +78,7 @@ export default function App() {
           backgroundColor: isMonitoring ? 'red' : 'blue',
           padding: 10,
           borderRadius: 5,
-          marginTop:  20,
+          marginTop: 20,
         }}
       >
         <Text style={{ color: 'white' }}>
@@ -118,4 +88,3 @@ export default function App() {
     </View>
   );
 }
-
