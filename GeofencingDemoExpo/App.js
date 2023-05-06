@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import MapView, { Circle, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib';
 
 export default function App() {
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [insideGeofence, setInsideGeofence] = useState(false);
+  const [location, setLocation] = useState(null);
   const positionSubscription = useRef(null);
 
   const hochschuleMuenchen = {
@@ -49,6 +51,7 @@ export default function App() {
         distanceInterval: 10,
       },
       (location) => {
+        setLocation(location);
         console.log('Current location: ' + location.coords.latitude + ', ' + location.coords.longitude);
         const currentlyInsideGeofence = isInsideGeofence(location, hochschuleMuenchen);
         console.log('Inside geofence:', currentlyInsideGeofence);
@@ -70,21 +73,51 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Geofencing Demo App</Text>
-      <TouchableOpacity
-        onPress={isMonitoring ? stopMonitoring : startMonitoring}
-        style={{
-          backgroundColor: isMonitoring ? 'red' : 'blue',
-          padding: 10,
-          borderRadius: 5,
-          marginTop: 20,
+    <View style={{ flex: 1 }}>
+      <MapView
+        style={{ flex: 1 }}
+        initialRegion={{
+          latitude: hochschuleMuenchen.latitude,
+          longitude: hochschuleMuenchen.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
         }}
       >
-        <Text style={{ color: 'white' }}>
-          {isMonitoring ? 'Stop Monitoring' : 'Start Monitoring'}
-        </Text>
-      </TouchableOpacity>
+        {location && (
+          <Marker
+            coordinate={{
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            }}
+            title="Aktuelle Position"
+          />
+        )}
+        <Circle
+          center={{
+            latitude: hochschuleMuenchen.latitude,
+            longitude: hochschuleMuenchen.longitude,
+          }}
+          radius={hochschuleMuenchen.radius}
+          strokeWidth={1}
+          strokeColor="#3399ff"
+          fillColor="rgba(51, 153, 255, 0.1)"
+        />
+      </MapView>
+      <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20 }}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: isMonitoring ? 'red' : 'green',
+            padding: 20,
+            alignItems: 'center',
+            borderRadius: 5,
+          }}
+          onPress={isMonitoring ? stopMonitoring : startMonitoring}
+        >
+          <Text style={{ color: 'white', fontSize: 18 }}>
+            {isMonitoring ? 'Stop Monitoring' : 'Start Monitoring'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
