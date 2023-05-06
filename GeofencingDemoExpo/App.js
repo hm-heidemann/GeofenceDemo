@@ -30,6 +30,7 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error })
 export default function App() {
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [initialRegion, setInitialRegion] = useState(null);
+  const mapRef = useRef();
 
   const regions = [
     {
@@ -60,6 +61,8 @@ export default function App() {
 
   // Abfrage der Tracking Berechtigungen & Setze initale Location
   useEffect(() => {
+    let watchPositionSub;
+
     (async () => {
       const { status: fgStatus } = await Location.requestForegroundPermissionsAsync();
       const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
@@ -77,7 +80,31 @@ export default function App() {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       });
+
+      watchPositionSub = await Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.BestForNavigation, timeInterval: 1000, distanceInterval: 5 },
+        (location) => {
+          if (location && mapRef.current) {
+            mapRef.current.animateCamera({
+              center: {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+              },
+              pitch: 0,
+              heading: 0,
+              altitude: 0,
+              zoom: 15,
+            });
+          }
+        },
+      );
     })();
+
+    return () => {
+      if (watchPositionSub) {
+        watchPositionSub.remove();
+      }
+    };
   }, []);
 
   async function startMonitoring() {
@@ -93,6 +120,7 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       <MapView
+        ref={mapRef}
         style={{ flex: 1 }}
         initialRegion={initialRegion}
         showsUserLocation={true}
