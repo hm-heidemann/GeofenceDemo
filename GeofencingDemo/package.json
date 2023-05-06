@@ -12,7 +12,8 @@
   "dependencies": {
     "@shehang/react-native-simple-native-geofencing": "^1.0.3",
     "react": "18.2.0",
-    "react-native": "0.71.7"
+    "react-native": "0.71.7",
+    "react-native-permissions": "^3.8.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

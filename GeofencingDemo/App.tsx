@@ -1,8 +1,39 @@
 import React, { Component } from 'react';
-import { View, Text, PermissionsAndroid, Platform, Button } from 'react-native';
+import { View, Text, TouchableOpacity, PermissionsAndroid, Platform, Button } from 'react-native';
+import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import RNSimpleNativeGeofencing from '@shehang/react-native-simple-native-geofencing';
 
 async function requestLocationPermission() {
+  console.log("Inside requestLocationPermission()");
+  try {
+    const status = await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+
+    if (status === RESULTS.GRANTED) {
+      console.log('Location permission granted');
+      // Berechtigung bereits erteilt
+      // Starten Sie hier das Geofencing
+    } else if (status === RESULTS.DENIED) {
+      // Berechtigung abgelehnt, aber Benutzer kann sie noch ändern
+      const newStatus = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+
+      if (newStatus === RESULTS.GRANTED) {
+        console.log('Location permission granted');
+        // Berechtigung erteilt
+        // Starten Sie hier das Geofencing
+      } else {
+        // Berechtigung weiterhin abgelehnt
+        console.log('Location permission denied');
+      }
+    } else if (status === RESULTS.BLOCKED) {
+      // Berechtigung abgelehnt und Benutzer kann sie nicht ändern (z.B. durch Elternkontrolle)
+      console.log('Location permission blocked');
+    }
+  } catch (error) {
+    console.log('Error while checking location permission:', error);
+  }
+}
+
+/* async function requestLocationPermission() {
   try {
     const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -19,7 +50,7 @@ async function requestLocationPermission() {
   } catch (err) {
     console.warn(err)
   }
-};
+}; */
 
 export default class App extends Component {
 
@@ -47,9 +78,8 @@ export default class App extends Component {
           },
           enter: {
             notify: true,
-            title: "Attention",
-            //[value] will be replaced ob geofences' value attribute
-            description: "You entered a [value] Zone"
+            title: "Willkommen",
+            description: "Willkommen bei der [value]"
           },
           exit: {
             notify: true,
@@ -59,18 +89,18 @@ export default class App extends Component {
         }
       );
     }
-    fail() {
-        console.log("Fail to start geofencing")
+    fail(errorCode: number) {
+        console.log("Fail to start geofencing. Error code:", errorCode);
     }
 
     startMonitoring(){
         let geofences = [
           {
-            key: "geoNum3",
-            latitude: 47.423,
-            longitude: -122.084,
-            radius: 150,
-            value: "red"
+            key: "hochschuleMuenchen",
+            latitude: 48.154278,
+            longitude: 11.553861,
+            radius: 200,
+            value: "Hochschule München"
           }
         ];
         RNSimpleNativeGeofencing.addGeofences(geofences, 3000000, this.fail);
@@ -84,14 +114,26 @@ export default class App extends Component {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text>Geofencing Demo App</Text>
-          <Button
-            title="Start Monitoring"
-            onPress={this.startMonitoring}
-          />
-          <Button
-            title="Stop Monitoring"
-            onPress={this.stopMonitoring}
-          />
+          <TouchableOpacity
+            onPress={this.startMonitoring.bind(this)}
+            style={{
+              backgroundColor: 'blue',
+              padding: 10,
+              borderRadius: 5,
+              marginTop: 20,
+            }}>
+            <Text style={{ color: 'white' }}>Start Monitoring</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={this.stopMonitoring.bind(this)}
+            style={{
+              backgroundColor: 'red',
+              padding: 10,
+              borderRadius: 5,
+              marginTop: 20,
+            }}>
+            <Text style={{ color: 'white' }}>Stop Monitoring</Text>
+          </TouchableOpacity>
         </View>
       );
     }
