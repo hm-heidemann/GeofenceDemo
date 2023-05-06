@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import MapView, { Circle, Marker } from 'react-native-maps';
+import MapView, { Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib';
 
@@ -9,6 +9,7 @@ export default function App() {
   const [insideGeofence, setInsideGeofence] = useState(false);
   const [location, setLocation] = useState(null);
   const positionSubscription = useRef(null);
+  const mapRef = useRef(null);
 
   const hochschuleMuenchen = {
     latitude: 48.154278,
@@ -59,6 +60,15 @@ export default function App() {
         if (currentlyInsideGeofence !== insideGeofence) {
           setInsideGeofence(currentlyInsideGeofence);
         }
+
+        if (mapRef.current) {
+          mapRef.current.animateCamera({
+            center: {
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            },
+          });
+        }
       }
     );
 
@@ -75,6 +85,7 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       <MapView
+        ref={mapRef}
         style={{ flex: 1 }}
         initialRegion={{
           latitude: hochschuleMuenchen.latitude,
@@ -82,16 +93,9 @@ export default function App() {
           latitudeDelta: 0.005,
           longitudeDelta: 0.005,
         }}
+        showsUserLocation={true}
+        userLocationAnnotationTitle=""
       >
-        {location && (
-          <Marker
-            coordinate={{
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-            }}
-            title="Aktuelle Position"
-          />
-        )}
         <Circle
           center={{
             latitude: hochschuleMuenchen.latitude,
