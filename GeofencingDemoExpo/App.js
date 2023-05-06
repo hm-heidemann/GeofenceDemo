@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import MapView, { Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -6,6 +6,7 @@ import * as TaskManager from 'expo-task-manager';
 import { getDistance } from 'geolib';
 
 const GEOFENCING_TASK = 'GEOFENCING_TASK';
+const hasEnteredRegions = new Set();
 
 TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error }) => {
   if (error) {
@@ -14,9 +15,15 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error })
   }
 
   if (eventType === Location.GeofencingEventType.Enter) {
-    console.log(`Sie befinden sich in der Nähe der ${region.identifier}.`);
+    if (!hasEnteredRegions.has(region.identifier)) {
+      console.log(`Sie befinden sich in der Nähe der ${region.identifier}.`);
+      hasEnteredRegions.add(region.identifier);
+    }
   } else if (eventType === Location.GeofencingEventType.Exit) {
-    console.log(`Sie verlassen die ${region.identifier}.`);
+      if (hasEnteredRegions.has(region.identifier)) {
+        console.log(`Sie verlassen die ${region.identifier}.`);
+        hasEnteredRegions.delete(region.identifier);
+      }
   }
 });
 
