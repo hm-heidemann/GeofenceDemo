@@ -29,6 +29,7 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error })
 
   if (eventType === Location.GeofencingEventType.Enter) {
     if (!hasEnteredRegions.has(region.identifier)) {
+      // alert(`Sie befinden sich in der Nähe der ${region.identifier}.`);
       console.log(`Sie befinden sich in der Nähe der ${region.identifier}.`);
       hasEnteredRegions.add(region.identifier);
 
@@ -38,6 +39,7 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error })
     }
   } else if (eventType === Location.GeofencingEventType.Exit) {
     if (hasEnteredRegions.has(region.identifier)) {
+      // alert(`Sie verlassen die ${region.identifier}.`);
       console.log(`Sie verlassen die ${region.identifier}.`);
       hasEnteredRegions.delete(region.identifier);
 
