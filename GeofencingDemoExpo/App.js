@@ -8,6 +8,7 @@ import * as Notifications from 'expo-notifications';
 const GEOFENCING_TASK = 'GEOFENCING_TASK';
 const hasEnteredRegions = new Set();
 
+// Auskommentieren falls man Notifications verwenden möchte
 /*Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -22,6 +23,7 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error })
     return;
   }
 
+  // Auskommentieren falls man Notifications verwenden möchte
   // let notificationTitle = '';
   // let notificationBody = '';
 
@@ -30,6 +32,7 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error })
       console.log(`Sie befinden sich in der Nähe der ${region.identifier}.`);
       hasEnteredRegions.add(region.identifier);
 
+      // Auskommentieren falls man Notifications verwenden möchte
       // notificationTitle = 'Geofence betreten';
       // notificationBody = `Sie befinden sich in der Nähe der ${region.identifier}.`;
     }
@@ -38,10 +41,13 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error })
       console.log(`Sie verlassen die ${region.identifier}.`);
       hasEnteredRegions.delete(region.identifier);
 
+      // Auskommentieren falls man Notifications verwenden möchte
       // notificationTitle = 'Geofence verlassen';
       // notificationBody = `Sie verlassen die ${region.identifier}.`;
     }
   }
+
+  // Auskommentieren falls man Notifications verwenden möchte
   /*if (notificationTitle && notificationBody) {
     await Notifications.scheduleNotificationAsync({
       content: {
@@ -59,6 +65,7 @@ export default function App() {
   const [initialRegion, setInitialRegion] = useState(null);
   const mapRef = useRef();
 
+  // --- Geofences festlegen ---
   const regions = [
     {
       identifier: 'Hochschule München Campus Lothstraße',
@@ -86,7 +93,7 @@ export default function App() {
     },
   ];
 
-  // Abfrage der Tracking Berechtigungen & Setze initale Location
+  // --- Abfrage der Tracking Berechtigungen & Setze initale Location ---
   useEffect(() => {
     let watchPositionSub;
 
@@ -100,6 +107,7 @@ export default function App() {
         return;
       }
 
+      // --- Startposition setzen ---
       const initialUserLocation = await Location.getCurrentPositionAsync({});
       setInitialRegion({
         latitude: initialUserLocation.coords.latitude,
@@ -108,6 +116,7 @@ export default function App() {
         longitudeDelta: 0.005,
       });
 
+      // --- Folge der aktuellen Position ---
       watchPositionSub = await Location.watchPositionAsync(
         { accuracy: Location.Accuracy.BestForNavigation, timeInterval: 1000, distanceInterval: 5 },
         (location) => {
