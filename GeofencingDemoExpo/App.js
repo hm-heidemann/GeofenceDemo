@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import MapView, { Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
+// import * as Notifications from 'expo-notifications';
 import { getDistance } from 'geolib';
 
 const GEOFENCING_TASK = 'GEOFENCING_TASK';
@@ -14,17 +15,36 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error })
     return;
   }
 
+  // let notificationTitle = '';
+  // let notificationBody = '';
+
   if (eventType === Location.GeofencingEventType.Enter) {
     if (!hasEnteredRegions.has(region.identifier)) {
       console.log(`Sie befinden sich in der Nähe der ${region.identifier}.`);
       hasEnteredRegions.add(region.identifier);
+
+      // notificationTitle = 'Geofence betreten';
+      // notificationBody = `Sie befinden sich in der Nähe der ${region.identifier}.`;
     }
   } else if (eventType === Location.GeofencingEventType.Exit) {
-      if (hasEnteredRegions.has(region.identifier)) {
-        console.log(`Sie verlassen die ${region.identifier}.`);
-        hasEnteredRegions.delete(region.identifier);
-      }
+    if (hasEnteredRegions.has(region.identifier)) {
+      console.log(`Sie verlassen die ${region.identifier}.`);
+      hasEnteredRegions.delete(region.identifier);
+
+      // notificationTitle = 'Geofence verlassen';
+      // notificationBody = `Sie verlassen die ${region.identifier}.`;
+    }
   }
+  /*if (notificationTitle && notificationBody) {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: notificationTitle,
+        body: notificationBody,
+        sound: true,
+        priority: Notifications.AndroidNotificationPriority.HIGH,
+      },
+      trigger: null,
+  });*/
 });
 
 export default function App() {
