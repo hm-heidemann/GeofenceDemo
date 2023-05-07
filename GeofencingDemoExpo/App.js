@@ -3,11 +3,18 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import MapView, { Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
-// import * as Notifications from 'expo-notifications';
-import { getDistance } from 'geolib';
+import * as Notifications from 'expo-notifications';
 
 const GEOFENCING_TASK = 'GEOFENCING_TASK';
 const hasEnteredRegions = new Set();
+
+/*Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});*/
 
 TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error }) => {
   if (error) {
