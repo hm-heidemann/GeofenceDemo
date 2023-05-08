@@ -63,7 +63,6 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { eventType, region }, error })
 });
 
 export default function App() {
-  const [isMonitoring, setIsMonitoring] = useState(false);
   const [initialRegion, setInitialRegion] = useState(null);
   const mapRef = useRef();
 
@@ -136,24 +135,22 @@ export default function App() {
           }
         },
       );
+
+      // --- Starte Geofence-Monitoring ---
+      await Location.startGeofencingAsync(GEOFENCING_TASK, regions);
     })();
 
     return () => {
       if (watchPositionSub) {
         watchPositionSub.remove();
       }
+
+      // --- Stoppe Geofence-Monitoring ---
+      (async () => {
+        await Location.stopGeofencingAsync(GEOFENCING_TASK);
+      })();
     };
   }, []);
-
-  async function startMonitoring() {
-    await Location.startGeofencingAsync(GEOFENCING_TASK, regions);
-    setIsMonitoring(true);
-  }
-
-  async function stopMonitoring() {
-    await Location.stopGeofencingAsync(GEOFENCING_TASK);
-    setIsMonitoring(false);
-  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -178,21 +175,6 @@ export default function App() {
           />
         ))}
       </MapView>
-      <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20 }}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: isMonitoring ? 'red' : 'green',
-            padding: 20,
-            alignItems: 'center',
-            borderRadius: 5,
-          }}
-          onPress={isMonitoring ? stopMonitoring : startMonitoring}
-        >
-          <Text style={{ color: 'white', fontSize: 18 }}>
-            {isMonitoring ? 'Stop Monitoring' : 'Start Monitoring'}
-          </Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
