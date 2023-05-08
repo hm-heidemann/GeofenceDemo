@@ -1,0 +1,15 @@
+Was ist Geofencing?
+A) Eine Methode zur Überwachung von Mitarbeitern
+B) Eine Technologie zur Erstellung von virtuellen Grenzen um geografische Gebiete
+C) Ein Verfahren zur Optimierung von Versandrouten
+D) Eine Marketingstrategie zur Steigerung der Kundenzufriedenheit
+
+Antwort: B
+
+Was ist ein Beispiel für die Verwendung von Geofencing zur Verbesserung der Sicherheit?
+A) Senden von Werbenachrichten an Kunden
+B) Tracking von Fahrzeugen in Echtzeit
+C) Warnung vor gefährlichen oder eingeschränkten Bereichen
+D) Überwachung von Social-Media-Aktivitäten
+
+Antwort: C
