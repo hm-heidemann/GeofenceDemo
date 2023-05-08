@@ -1,15 +1,20 @@
 Was ist Geofencing?
-A) Eine Methode zur Überwachung von Mitarbeitern
+A) Eine Methode zu einer effektiveren Nutzung von Zeit im Alltag
 B) Eine Technologie zur Erstellung von virtuellen Grenzen um geografische Gebiete
 C) Ein Verfahren zur Optimierung von Versandrouten
-D) Eine Marketingstrategie zur Steigerung der Kundenzufriedenheit
-
-Antwort: B
+D) Eine Strategie zu einer effektiveren Teamarbeit in virtuellen Teams
+ANSWER: B
 
 Was ist ein Beispiel für die Verwendung von Geofencing zur Verbesserung der Sicherheit?
 A) Senden von Werbenachrichten an Kunden
-B) Tracking von Fahrzeugen in Echtzeit
+B) Intelligente Kühlschränke
 C) Warnung vor gefährlichen oder eingeschränkten Bereichen
 D) Überwachung von Social-Media-Aktivitäten
+ANSWER: C
 
-Antwort: C
+Welche Rechenmethode wird verwendet, um zu ermitteln ob man sich in einem polygonalem Geofence befindet?
+A) Dijkstra Algorithmus
+B) X Koordinate * Y Koordinate
+C) Sieb des Eratosthenes
+D) Point-in-Polygon Algorithmus 
+ANSWER: D
